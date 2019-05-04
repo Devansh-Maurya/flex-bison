@@ -6,4 +6,4 @@
 
 %%
 
-.\n    { printf("%5d %s", lineNum++, yytext);}
+.*\n    { printf("%5d %s", lineNum++, yytext);}

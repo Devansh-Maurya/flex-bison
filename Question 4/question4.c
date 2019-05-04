@@ -1,147 +1,150 @@
-#include <stdio.h>
-#include <string.h>
-#include <malloc.h>
-#include <string.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
 
-#define MAX 100
+struct table {
+    char
+    var [10];
+    int value;
+};
 
-typedef struct Node
-{
-    char *identifier, *type;
-    struct Node *next;
-} Node;
+struct table tb1[20];
 
-typedef struct
-{
-    Node* head[MAX];
-} SymbolTable;
+int i, j, n;
+void create();
+void modify();
+int search(char variable[], int n);
+void insert();
+void display();
 
-int hashf(char *id)
-{
-    int asciiSum = 0;
+void main() {
 
-    for (int i = 0; i < strlen(id); i++)
-    {
-        asciiSum = asciiSum + id[i];
-    }
+    int ch, result = 0;
+    char v[10];
 
-    return (asciiSum % 100);
+    do {
+        printf("\n\n1.CREATE\n2.INSERT\n3.MODIFY\n4.SEARCH\n5.DISPLAY\n6.EXIT:\t");
+        scanf("%d", & ch);
+        switch (ch) {
+        case 1:
+            create();
+            break;
+        case 2:
+            insert();
+            break;
+        case 3:
+            modify();
+            break;
+        case 4:
+            printf("\nEnter the variable to be searched:");
+            scanf("%s", & v);
+            result = search(v, n);
+            if (result == 0)
+                printf("\nThe variable is not present\n");
+            else
+                printf("\nThe location of the variable is %d \n The value of %s is %d.", result, tb1[result].var, tb1[result].value);
+            break;
+        case 5:
+            display();
+            break;
+        case 6:
+            exit(1);
+        }
+    } while (ch != 6);
 }
 
-int insert(SymbolTable* st,char *id, char *Type)
-{
-    int index = hashf(id);
-    Node *p = (Node*)malloc(sizeof(Node));//new Node(id, scope, Type, lineno);
-    p->identifier = id;
-    p->type = Type;
 
-    if (st->head[index] == NULL)
-    {
-        st->head[index] = p;
-        st->head[index]->next = NULL;
-        printf("\n%s inserted",id);
-        return 1;
+void create() {
+    printf("\nEnter the no. of entries:");
+    scanf("%d", & n);
+    printf("\nEnter the variable and the values:-\n");
+    for (i = 1; i <= n; i++) {
+        scanf("%s%d", tb1[i].var, & tb1[i].value);
+        check:
+            if (tb1[i].var[0] >= '0' && tb1[i].var[0] <= '9') {
+                printf("\nVariable should start with alphabet\nEnter correct name\n");
+                scanf("%s%d", tb1[i].var, & tb1[i].value);
+                goto check;
+            }
+        check1:
+            for (j = 1; j < i; j++) {
+                if (strcmp(tb1[i].var, tb1[j].var) == 0) {
+                    printf("\nThe variable already present. Enter another:");
+                    scanf("%s%d", & tb1[i].var, & tb1[i].value);
+                    goto check1;
+                }
+            }
     }
+    printf("\nThe table after creation is:\n");
+    display();
+}
+
+
+void insert() {
+    if (i >= 20)
+        printf("\nCannot insert.table is full\n");
+    else {
+        n++;
+        printf("\nEnter the variable and the value:");
+        scanf("%s%d", & tb1[n].var, & tb1[n].value);
+        check:
+
+            if (tb1[i].var[0] >= '0' && tb1[i].var[0] <= '9') {
+                printf("\nVariable should start with alphabet\nEnter correct name\n");
+                scanf("%s%d", tb1[i].var, & tb1[i].value);
+                goto check;
+            }
+        check1:
+            for (j = 1; j < n; j++) {
+                if (strcmp(tb1[j].var, tb1[i].var) == 0) {
+                    printf("\nThe variable already present. Enter another:");
+                    scanf("%s%d", & tb1[i].var, & tb1[i].value);
+                    goto check1;
+                }
+            }
+        printf("\nThe table after insertion is:");
+        display();
+    }
+}
+
+
+void modify() {
+    char variable[10];
+    int result = 0;
+    printf("\nEnter the variable to be modified:");
+    scanf("%s", & variable);
+    result = search(variable, n);
+    if (result == 0)
+        printf("%s not present\n", variable);\
+    else {
+        printf("\nThe current value of the variable %s is %d.\nEnter the new variable and its value", tb1[result].var, tb1[result].value);
+        scanf("%s%d", tb1[result].var, & tb1[result].value);
+        check:
+            if (tb1[i].var[0] >= '0' && tb1[i].var[0] <= '9') {
+                printf("\nVariable should start with alphabet\nEnter correct name\n");
+                scanf("%s%d", tb1[i].var, & tb1[i].value);
+                goto check;
+            }
+    }
+    printf("\nThe table after modification is:");
+    display();
+}
+
+int search(char variable[], int n) {
+    int flag;
+    for (i = 1; i <= n; i++)
+        if (strcmp(tb1[i].var, variable) == 0) {
+            flag = 1;
+            break;
+        }
+    if (flag == 1)
+        return i;
     else
-    {
-        Node *start = st->head[index];
-        while (start->next != NULL)
-        {
-            start = start->next;
-        }
-
-        start->next = p;
-        start->next->next = NULL;
-        printf("\n%s inserted",id);
-        return 1;
-    }
-
-    return 0;
+        return 0;
 }
 
-void printNode(Node node)
-{
-    printf("\n%s\t\t%s",node.identifier,node.type);
-}
-
-void printST(SymbolTable* st)
-{
-    printf("\n\nSymbol Table\n%s\t%s\n----------------------------","token id","name");
-    for(int i=0; i<MAX;i++)
-    {
-        Node* start = st-> head[i];
-        while( start != NULL)
-        {
-            printNode(*start);
-            start = start->next;
-        }
-    }
-}
-
-void find(SymbolTable* st,char *id)
-{
-    int index = hashf(id);
-    Node* start = st->head[index];
-
-    if (start == NULL)
-        printf("%s Not found", id);
-
-    while (start != NULL) {
-
-        if (start->identifier == id) {
-            printNode(*start);
-        }
-
-        start = start->next;
-    }
-}
-
-int deleteRecord(SymbolTable *st,char *id)
-{
-    int index = hashf(id);
-    Node* tmp = st->head[index];
-    Node* par = st->head[index];
-
-    // no identifier is present at that index
-    if (tmp == NULL) {
-        return 0;
-    }
-    // only one identifier is present
-    if ( !strcmp(tmp->identifier , id) && tmp->next == NULL) {
-        tmp->next = NULL;
-        free(tmp);
-        return 1;
-    }
-
-    while (!strcmp(tmp->identifier , id) && tmp->next != NULL) {
-        par = tmp;
-        tmp = tmp->next;
-    }
-    if ((strcmp(tmp->identifier , id)==0? 1:0) && tmp->next != NULL) {
-        par->next = tmp->next;
-        tmp->next = NULL;
-        free(tmp);
-        return 1;
-    }
-
-    // delete at the end
-    else {
-        par->next = NULL;
-        tmp->next = NULL;
-        free(tmp);
-        return 1;
-    }
-    return 0;
-}
-
-int main()
-{
-    SymbolTable st={NULL,NULL,NULL,NULL};
-    insert(&st,"if", "keyword");
-    insert(&st,"val1", "identifier");
-    insert(&st,"if", "keyword");
-    insert(&st,"if", "keyword");
-    // find(&st,"if");
-    deleteRecord(&st,"if");
-    printST(&st);
+void display() {
+    printf("\nVariable\tvalue\n");
+    for (i = 1; i <= n; i++)
+        printf("%s\t\t%d\n", tb1[i].var, tb1[i].value);
 }
